@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Testing</title>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+	<meta name="description" content="Testing AudioEyes">
+	<meta name="author" content="AudioEyes">
+</head>
+
+<body>
+	<ul>
+		<li>requestTranscription(<input id="i11"/>,<input id="i12"/>)<button id="b1">send</button></li>
+		<li>changeSpamFee(<input id="i21"/>)<button id="b2">send</button></li>
+		<li>getSpamFee()<button id="b3">send</button></li>
+		<li>submitTranscription(<input id="i41"/>,<input id="i42"/>)<button id="b4">send</button></li>
+		<li>getTranscription(<input id="i51"/>)<button id="b5">send</button></li>
+		<li>tip(<input id="i61"/>,<input id="i62"/>)<button id="b6">send</button></li>
+	</ul>
+	<script>
+		
+		if (typeof window.ethereum !== 'undefined') {
+			console.log('MetaMask is installed!');
+		}
+
+		const web3 = new Web3(window.ethereum);
+
+		const b1 = document.querySelector('#b1');
+		const b2 = document.querySelector('#b2');
+		const b3 = document.querySelector('#b3');
+		const b4 = document.querySelector('#b4');
+		const b5 = document.querySelector('#b5');
+		const b6 = document.querySelector('#b6');
+
+		const i11 = document.getElementById('i11');
+		const i12 = document.getElementById('i12');
+		const i21 = document.getElementById('i21');
+		const i41 = document.getElementById('i41');
+		const i42 = document.getElementById('i42');
+		const i51 = document.getElementById('i51');
+		const i61 = document.getElementById('i61');
+		const i62 = document.getElementById('i62');
+
+		async function getAccount() {
+			accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+			return accounts[0];
+		}
+		async function getContract() {
+			const abiFetch = await fetch("/build/contracts/AudioEyes.json");
+			const abi = await abiFetch.json();
+			const contract = new web3.eth.Contract(abi.abi, '0xcEE0372e8C4119274283f1652A083B58349FFe3c');
+			return contract;
+		}
+
+		async function requestTranscription(doc, value) {
+			acct = await getAccount();
+			contract = await getContract();
+			contract.methods.requestTranscription(doc).send({from: acct, value: value})
+		  	.then((txHash) => console.log(txHash))
+		    .catch((error) => console.error);
+		}
+
+		async function changeSpamFee(fee, value) {
+			acct = await getAccount();
+			contract = await getContract();
+			contract.methods.changeSpamFee(fee).send({from: acct})
+		  	.then((txHash) => console.log(txHash))
+		    .catch((error) => console.error);
+		}
+
+		async function getSpamFee() {
+			acct = await getAccount();
+			contract = await getContract();
+		  	contract.methods.getSpamFee().call({from: acct}).then(
+				function(result) {
+					console.log(result);
+					alert(result);
+				}
+			)
+		    .then((txHash) => console.log(txHash))
+		    .catch((error) => console.error);
+		}
+
+		async function submitTranscription(docAddr, transcription) {
+			acct = await getAccount();
+			contract = await getContract();
+			contract.methods.submitTranscription(docAddr, transcription).send({from: acct})
+		  	.then((txHash) => console.log(txHash))
+		    .catch((error) => console.error);
+		}
+
+		async function getTranscription(docAddr) {
+			acct = await getAccount();
+			contract = await getContract();
+		  	contract.methods.getTranscription(docAddr).call({from: acct}).then(
+				function(result) {
+					console.log(result);
+					alert(result);
+				}
+			)
+		    .then((txHash) => console.log(txHash))
+		    .catch((error) => console.error);
+		}
+
+		async function tip(docAddr, value) {
+			acct = await getAccount();
+			contract = await getContract();
+			contract.methods.submitTranscription(docAddr).send({from: acct, value: value})
+		  	.then((txHash) => console.log(txHash))
+		    .catch((error) => console.error);
+		}
+
+		b1.addEventListener('click', () => {
+			requestTranscription(i11.value, i12.value);
+		});
+		b2.addEventListener('click', () => {
+			changeSpamFee(i21.value);
+		});
+		b3.addEventListener('click', () => {
+			getSpamFee();
+		});
+		b4.addEventListener('click', () => {
+			submitTranscription(i41.value, i42.value);
+		});
+		b5.addEventListener('click', () => {
+			getTranscription(i51.value);
+		});
+		b6.addEventListener('click', () => {
+			tip(i61,i62);
+		});
+	</script>
+</body>
+</html>
